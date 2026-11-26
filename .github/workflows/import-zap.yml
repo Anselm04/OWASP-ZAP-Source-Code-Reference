@@ -14,9 +14,9 @@ jobs:
         run: |
           set -euo pipefail
           git init "$RUNNER_TEMP/upstream"
-          git -C "$RUNNER_TEMP/upstream" fetch --depth 1 https://github.com/zaproxy/zaproxy.git 862a402b92f63978407153f2dbfdfbda5915dd1d
+          git -C "$RUNNER_TEMP/upstream" fetch --depth 1 https://github.com/zaproxy/zaproxy.git d1064f80576550b853f5a645378ea247791fd6e4
           git -C "$RUNNER_TEMP/upstream" checkout --detach FETCH_HEAD
-          test "$(git -C "$RUNNER_TEMP/upstream" rev-parse HEAD^{tree})" = d1064f80576550b853f5a645378ea247791fd6e4
+          test "$(git -C "$RUNNER_TEMP/upstream" rev-parse HEAD^{tree})" = 862a402b92f63978407153f2dbfdfbda5915dd1d
           python3 - <<'PY'
           import os, subprocess, pathlib, shutil
           src=pathlib.Path(os.environ['RUNNER_TEMP'])/'upstream'
