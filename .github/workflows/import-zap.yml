@@ -13,9 +13,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git clone --depth 1 https://github.com/zaproxy/zaproxy.git "$RUNNER_TEMP/upstream"
+          git init "$RUNNER_TEMP/upstream"
+          git -C "$RUNNER_TEMP/upstream" fetch --depth 1 https://github.com/zaproxy/zaproxy.git 862a402b92f63978407153f2dbfdfbda5915dd1d
+          git -C "$RUNNER_TEMP/upstream" checkout --detach FETCH_HEAD
           test "$(git -C "$RUNNER_TEMP/upstream" rev-parse HEAD^{tree})" = d1064f80576550b853f5a645378ea247791fd6e4
-          git -C "$RUNNER_TEMP/upstream" archive HEAD | tar -x -C "$RUNNER_TEMP"
           python3 - <<'PY'
           import os, subprocess, pathlib, shutil
           src=pathlib.Path(os.environ['RUNNER_TEMP'])/'upstream'
@@ -34,7 +35,8 @@ jobs:
               dest.chmod(0o755 if mode==b'100755' else 0o644)
               actual=subprocess.check_output(['git','hash-object','--no-filters',str(dest)]).strip()
               assert actual==sha,p
-              subprocess.run(['git','add','-f','--',p],check=True)
+              subprocess.run(['git','hash-object','-w','--no-filters',str(dest)],check=True,stdout=subprocess.DEVNULL)
+              subprocess.run(['git','update-index','--add','--cacheinfo',mode.decode(),sha.decode(),p],check=True)
               assert subprocess.check_output(['git','rev-parse',':'+p]).strip()==sha,p
               count+=1
           print(f'Verified {count} upstream files')
